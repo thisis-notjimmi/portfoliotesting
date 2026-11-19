@@ -78,7 +78,10 @@ h2{font:bold 20px "Trebuchet MS",Tahoma,sans-serif;color:#0a3a9c;margin:0 0 14px
 .box h4{margin:0;padding:5px 9px;background:linear-gradient(90deg,#fff,#c6d3f7);color:#215dc6;font-size:11px}
 .box div{padding:7px 9px;font-size:11px;color:#215dc6;line-height:1.7}.box a{color:#215dc6;display:block}
 .files{padding:14px;background:#fff}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px}
+.shot{display:block;width:100%;border:1px solid #7f9db9;margin:0 0 10px}
+pre.code{max-height:260px;overflow:auto;margin:0 0 10px;padding:10px;background:#0b1a44;color:#cfe3ff;border:1px solid #7f9db9;font:12px/1.5 "Courier New",monospace}
+.fname{font-size:11px;color:#52657c;margin:0 0 3px}
 .card{border:1px solid #7f9db9;background:#fff}
 .cardhead{padding:6px 10px;background:linear-gradient(#fff,#dce8fb);border-bottom:1px solid #aebfd8;color:#0a3a9c;font-weight:bold}
 .cardbody{padding:13px}.cardbody h3{margin:0 0 8px;font-size:15px;color:#0a3a9c}.cardbody p{line-height:1.6;margin:0 0 10px;color:#333}.cardbody a{color:#0645ad}
@@ -155,14 +158,14 @@ h2{font:bold 20px "Trebuchet MS",Tahoma,sans-serif;color:#0a3a9c;margin:0 0 14px
 <div class="titlebar"><div class="app"><span>📁</span> My Documents - Midterm Lab Tasks</div><div class="ctl"><button class="mn">_</button><button class="mx">□</button><button class="close">×</button></div></div>
 <div class="wbody"><div class="menubar"><u>F</u>ile <u>E</u>dit <u>V</u>iew <u>F</u>avorites <u>T</u>ools <u>H</u>elp</div>
 <div class="address">Address <b>C:\Documents and Settings\Jim\My Documents\Midterm</b> <span class="go">➜ Go</span></div>
-<div class="explorer"><div class="pane"><div class="box"><h4>File and Folder Tasks</h4><div><a href="#midterm">📄 Open a source file</a><a href="https://github.com/thisis-notjimmi" target="_blank" rel="noreferrer">🌐 Go to GitHub</a></div></div><div class="box"><h4>Details</h4><div><b>Midterm Lab Tasks</b><br>File Folder<br>1 object</div></div></div>
-<div class="files"><h2>Midterm Lab Tasks</h2><div class="cards"><article class="card"><div class="cardhead">📄 MIDTERM_01.JAVA — File</div><div class="cardbody"><h3>Task 01 — 3×3 Matrix Operations</h3><p>Accepts nine numbers, displays the 3×3 matrix, calculates each row and column sum, and finds both diagonal sums. Includes a try-again option.</p><a href="#">Open source file ↗</a></div></article><div class="soon">📁 Task 02 is coming soon... check back soon!<div class="prog" aria-hidden="true"><i></i></div></div></div></div></div>
-<div class="status"><span>1 object</span><span>🖥️ My Computer</span></div></div></section>
+<div class="explorer"><div class="pane"><div class="box"><h4>File and Folder Tasks</h4><div><a href="#midterm">📄 Open a source file</a><a href="https://github.com/thisis-notjimmi" target="_blank" rel="noreferrer">🌐 Go to GitHub</a></div></div><div class="box"><h4>Details</h4><div><b>Midterm Lab Tasks</b><br>File Folder<br><span data-count="midterm">0 objects</span></div></div></div>
+<div class="files"><h2>Midterm Lab Tasks</h2><div class="cards" id="midterm-list"><div class="soon">📁 Coming soon... check back soon!<div class="prog" aria-hidden="true"><i></i></div></div></div></div></div>
+<div class="status"><span data-count="midterm">0 objects</span><span>🖥️ My Computer</span></div></div></section>
 
 <section class="window" id="final" data-i="📂" data-t="Final Lab Tasks">
 <div class="titlebar"><div class="app"><span>📂</span> Final Lab Tasks</div><div class="ctl"><button class="mn">_</button><button class="mx">□</button><button class="close">×</button></div></div>
-<div class="wbody"><div class="pad"><h2>Final Lab Tasks</h2><p>📁 This folder is currently empty... check back soon!</p><div class="prog" aria-hidden="true"><i></i></div></div>
-<div class="status"><span>0 objects</span><span>🖥️ My Computer</span></div></div></section>
+<div class="wbody"><div class="pad"><h2>Final Lab Tasks</h2><div id="final-list"><p>📁 This folder is currently empty... check back soon!</p><div class="prog" aria-hidden="true"><i></i></div></div></div>
+<div class="status"><span data-count="final">0 objects</span><span>🖥️ My Computer</span></div></div></section>
 
 <section class="window" id="contact" data-i="✉️" data-t="Thanks for stopping by! - Message">
 <div class="titlebar"><div class="app"><span>✉️</span> Thanks for stopping by! - Message</div><div class="ctl"><button class="mn">_</button><button class="mx">□</button><button class="close">×</button></div></div>
@@ -215,6 +218,47 @@ pl.onclick=toggle;$('.cd').onclick=toggle;
 au.onplay=au.onpause=()=>{const p=!au.paused;art.classList.toggle('playing',p);pl.textContent=p?'❚❚':'▶'};
 au.ontimeupdate=()=>{if(au.duration)sk.value=au.currentTime/au.duration*100;tm.textContent=fmt(au.currentTime)};
 sk.oninput=()=>{if(au.duration)au.currentTime=sk.value/100*au.duration};
+/* Auto-load lab tasks from the repo folders midterm-tasks/ and final-tasks/ */
+const GH_USER='thisis-notjimmi',GH_REPO=''; /* GH_REPO: only fill in if auto-detect fails */
+const onGH=location.hostname.endsWith('.github.io'),seg=location.pathname.split('/')[1]||'';
+const OWNER=onGH?location.hostname.split('.')[0]:GH_USER;
+const REPO=GH_REPO||(onGH?(seg&&!seg.includes('.')?seg:location.hostname):'');
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const url=p=>p.split('/').map(encodeURIComponent).join('/');
+const txt=p=>fetch(url(p)).then(r=>r.ok?r.text():'').catch(()=>'');
+let treeP;
+function tree(){return treeP||(treeP=(async()=>{
+ if(!REPO)return null;const k='tree:'+OWNER+'/'+REPO;
+ try{const c=JSON.parse(localStorage.getItem(k));if(c&&Date.now()-c.t<12e4)return c.d}catch(e){}
+ try{const r=await fetch('https://api.github.com/repos/'+OWNER+'/'+REPO+'/git/trees/HEAD?recursive=1');if(!r.ok)throw 0;
+  const d=(await r.json()).tree.filter(x=>x.type==='blob').map(x=>x.path);
+  try{localStorage.setItem(k,JSON.stringify({t:Date.now(),d}))}catch(e){}return d}
+ catch(e){try{return JSON.parse(localStorage.getItem(k)).d}catch(_){return null}}})())}
+function group(paths,folder){const g={};
+ paths.filter(p=>p.startsWith(folder+'/')).forEach(p=>{
+  const rel=p.slice(folder.length+1),parts=rel.split('/'),key=parts.length>1?parts[0]:rel.replace(/\.[^.]+$/,'');
+  const ext=rel.split('.').pop().toLowerCase();
+  const o=g[key]=g[key]||{img:[],code:[],txt:[]};
+  if(/^(png|jpe?g|gif|webp)$/.test(ext))o.img.push(p);else if(ext==='java')o.code.push(p);else if(/^(txt|md)$/.test(ext))o.txt.push(p)});
+ return Object.entries(g).sort((a,b)=>a[0].localeCompare(b[0],undefined,{numeric:true}))}
+async function card(key,o){
+ const a=el('article','card'),b=el('div','cardbody');
+ a.append(el('div','cardhead','📄 '+key.toUpperCase()+(o.code.length?' — Java':'')),b);
+ b.append(el('h3',0,key.replace(/[-_]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase())));
+ if(o.txt[0]){const t=(await txt(o.txt[0])).trim();if(t){const p=el('p',0,t);p.style.whiteSpace='pre-line';b.append(p)}}
+ o.img.forEach(p=>{const l=el('a');l.href=url(p);l.target='_blank';const i=el('img','shot');i.src=url(p);i.loading='lazy';i.alt=key+' screenshot';l.append(i);b.append(l)});
+ for(const p of o.code){const t=await txt(p);if(!t)continue;
+  b.append(el('div','fname',p.split('/').pop()));const pre=el('pre','code'),c=el('code',0,t);pre.append(c);b.append(pre);
+  const l=el('a',0,'Open source file ↗');l.href='https://github.com/'+OWNER+'/'+REPO+'/blob/HEAD/'+url(p);l.target='_blank';l.rel='noreferrer';b.append(l,document.createElement('br'))}
+ return a}
+async function loadTasks(folder,box,key){
+ const paths=await tree(),items=paths?group(paths,folder):[];
+ $$('[data-count="'+key+'"]').forEach(e=>e.textContent=items.length+(items.length===1?' object':' objects'));
+ if(!items.length)return;
+ const cards=await Promise.all(items.map(([k,o])=>card(k,o)));
+ const soon=el('div','soon','📁 More tasks coming soon...');const pg=el('div','prog');pg.append(el('i'));soon.append(pg);
+ box.className='cards';box.replaceChildren(...cards,soon)}
+loadTasks('midterm-tasks',$('#midterm-list'),'midterm');loadTasks('final-tasks',$('#final-list'),'final');
 function tick(){$('#clock').textContent=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}tick();setInterval(tick,30000);
 </script>
 </body></html>
