@@ -1,0 +1,1 @@
+Accepts nine numbers, displays the 3x3 matrix, calculates each row and column sum, and finds both diagonal sums. Includes a try-again option.
