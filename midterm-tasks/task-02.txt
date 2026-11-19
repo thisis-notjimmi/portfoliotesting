@@ -1,0 +1,2 @@
+This task is situational the situation is you have 2 sections of classes with 3 students and 3 subjects so you have to calculate their 
+grades by making a 3d array and calculating their grade average by declaring a scanner
