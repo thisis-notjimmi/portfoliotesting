@@ -79,7 +79,7 @@ h2{font:bold 20px "Trebuchet MS",Tahoma,sans-serif;color:#0a3a9c;margin:0 0 14px
 .box div{padding:7px 9px;font-size:11px;color:#215dc6;line-height:1.7}.box a{color:#215dc6;display:block}
 .files{padding:14px;background:#fff}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px}
-.shot{display:block;width:100%;border:1px solid #7f9db9;margin:0 0 10px}
+.shot{display:block;width:100%;border:1px solid #7f9db9;margin:0 0 10px}.pdfview{display:block;width:100%;height:520px;border:1px solid #7f9db9;background:#e8e8e8;margin:8px 0}.doclink{display:inline-block;margin:4px 8px 10px 0;color:#0645ad}
 pre.code{max-height:260px;overflow:auto;margin:0 0 10px;padding:10px;background:#0b1a44;color:#cfe3ff;border:1px solid #7f9db9;font:12px/1.5 "Courier New",monospace}
 .fname{font-size:11px;color:#52657c;margin:0 0 3px}
 .card{border:1px solid #7f9db9;background:#fff}
@@ -238,15 +238,27 @@ function group(paths,folder){const g={};
  paths.filter(p=>p.startsWith(folder+'/')).forEach(p=>{
   const rel=p.slice(folder.length+1),parts=rel.split('/'),key=parts.length>1?parts[0]:rel.replace(/\.[^.]+$/,'');
   const ext=rel.split('.').pop().toLowerCase();
-  const o=g[key]=g[key]||{img:[],code:[],txt:[]};
-  if(/^(png|jpe?g|gif|webp)$/.test(ext))o.img.push(p);else if(ext==='java')o.code.push(p);else if(/^(txt|md)$/.test(ext))o.txt.push(p)});
+  const o=g[key]=g[key]||{img:[],code:[],txt:[],docs:[]};
+  if(/^(png|jpe?g|gif|webp)$/.test(ext))o.img.push(p);
+  else if(ext==='java')o.code.push(p);
+  else if(/^(txt|md)$/.test(ext))o.txt.push(p);
+  else if(/^(pdf|doc|docx|odt)$/.test(ext))o.docs.push(p)});
  return Object.entries(g).sort((a,b)=>a[0].localeCompare(b[0],undefined,{numeric:true}))}
 async function card(key,o){
  const a=el('article','card'),b=el('div','cardbody');
  a.append(el('div','cardhead','📄 '+key.toUpperCase()+(o.code.length?' — Java':'')),b);
  b.append(el('h3',0,key.replace(/[-_]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase())));
  if(o.txt[0]){const t=(await txt(o.txt[0])).trim();if(t){const p=el('p',0,t);p.style.whiteSpace='pre-line';b.append(p)}}
- o.img.forEach(p=>{const l=el('a');l.href=url(p);l.target='_blank';const i=el('img','shot');i.src=url(p);i.loading='lazy';i.alt=key+' screenshot';l.append(i);b.append(l)});
+ o.img.forEach(p=>{const l=el('a');l.href=url(p);l.target='_blank';l.rel='noreferrer';const i=el('img','shot');i.src=url(p);i.loading='lazy';i.alt=key+' screenshot';l.append(i);b.append(l)});
+ for(const p of (o.docs||[])){
+  const ext=p.split('.').pop().toLowerCase(),name=p.split('/').pop();
+  if(ext==='pdf'){
+   const frame=el('iframe','pdfview');frame.src=url(p);frame.title=key+' documentation PDF';frame.loading='lazy';b.append(el('div','fname',name),frame);
+   const l=el('a','doclink','Open PDF in a new tab ↗');l.href=url(p);l.target='_blank';l.rel='noreferrer';b.append(l);
+  }else{
+   const l=el('a','doclink','📄 '+name+' ↗');l.href=url(p);l.target='_blank';l.rel='noreferrer';b.append(l);
+  }
+ }
  for(const p of o.code){const t=await txt(p);if(!t)continue;
   b.append(el('div','fname',p.split('/').pop()));const pre=el('pre','code'),c=el('code',0,t);pre.append(c);b.append(pre);
   const l=el('a',0,'Open source file ↗');l.href='https://github.com/'+OWNER+'/'+REPO+'/blob/HEAD/'+url(p);l.target='_blank';l.rel='noreferrer';b.append(l,document.createElement('br'))}
